@@ -143,7 +143,11 @@ The upstream repository does not declare a license; this repository documents th
 
 ## Screenshots
 
-*Coming soon* — if you use the dashboard and want to contribute a screenshot, open a PR and we'll add it here.
+![Dashboard top — cost cards, token stats, KV cache, TTFT, gauges](screenshots/dashboard-top.png)
+
+*Top of the dashboard: cloud-equivalent cost cards, token counters/rates, KV cache + prefix-cache gauges, TTFT (P50/P95/P99.9), request hopper, and utilization gauges.*
+
+Have your own view worth sharing? Open a PR with a screenshot and we'll add it.
 
 ---
 
