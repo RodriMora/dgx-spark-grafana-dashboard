@@ -7,6 +7,12 @@ A Grafana dashboard for monitoring an **NVIDIA DGX Spark (GB10) cluster serving 
 ![schemaVersion](https://img.shields.io/badge/Grafana%20schema%20v41-classic%20v1-blueviolet)
 ![panels](https://img.shields.io/badge/55%20panels-vLLM%20%2B%20Node%20Exporter%20%2B%20GPU%20hardware-green)
 
+## Preview
+
+![Dashboard top — cost cards, token stats, KV cache, TTFT, gauges](screenshots/dashboard-top.png)
+
+*Top of the dashboard: cloud-equivalent cost cards, token counters/rates, KV cache + prefix-cache gauges, TTFT (P50/P95/P99.9), request hopper, and utilization gauges.*
+
 ---
 
 ## Features
@@ -138,16 +144,6 @@ It relies on the target label `dgx_spark="true"` and legends with `{{host_id}}`.
   - the **DGX SPARK GB10 — GPU HARDWARE** row added via `scripts/add-gpu-hardware-panels.py` (requires `nvidia_gpu_exporter`).
 
 The upstream repository does not declare a license; this repository documents the modifications and does not claim ownership of the upstream panel work. The scripts and documentation in this repo are licensed under MIT (see [LICENSE](LICENSE)).
-
----
-
-## Screenshots
-
-![Dashboard top — cost cards, token stats, KV cache, TTFT, gauges](screenshots/dashboard-top.png)
-
-*Top of the dashboard: cloud-equivalent cost cards, token counters/rates, KV cache + prefix-cache gauges, TTFT (P50/P95/P99.9), request hopper, and utilization gauges.*
-
-Have your own view worth sharing? Open a PR with a screenshot and we'll add it.
 
 ---
 
