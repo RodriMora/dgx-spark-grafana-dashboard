@@ -18,7 +18,7 @@ A Grafana dashboard for monitoring an **NVIDIA DGX Spark (GB10) cluster serving 
 ## Features
 
 ### Inference / vLLM row
-Cost "cloud-equivalent" calculators (Opus/Sonnet/Haiku + local electricity at ~240 W), token counters and rates, **KV cache usage**, **prefix cache hit rate**, TTFT P50/P95/P99, request hopper (running / waiting / swapped), **speculative-decode acceptance** (rate + by position), token throughput over time, prompt/output mix, request rate / success / errors, queue time, E2E request latency, TPOT / inter-token latency, engine iteration latency, prompt/output size distributions, model throughput / TTFT / queue-pressure comparisons, and HTTP latency by handler.
+Cost "cloud-equivalent" calculators (Claude Opus 5 / Claude Sonnet 5 / DeepSeek V4 Flash + local electricity at ~240 W) that **price input tokens by measured cache hit/miss split**, token counters and rates (incl. a **cache-hit tokens** counter over the range), **KV cache usage**, **prefix cache hit rate**, TTFT P50/P95/P99, request hopper (running / waiting / swapped), **speculative-decode acceptance** (rate + by position), token throughput over time, prompt/output mix, request rate / success / errors, queue time, E2E request latency, TPOT / inter-token latency, engine iteration latency, prompt/output size distributions, model throughput / TTFT / queue-pressure comparisons, and HTTP latency by handler.
 
 ### Node Exporter row
 Per-host load, network + disk throughput, CPU / memory / network / disk timeseries, filesystem space by mount, IOPS.
@@ -41,6 +41,7 @@ Added by [`scripts/add-gpu-hardware-panels.py`](scripts/add-gpu-hardware-panels.
 |---|---|---|
 | **Prometheus** (datasource UID must be `prometheus`) | vLLM OpenAI server `/metrics` endpoint | Aggregated metrics like `vllm:generation_tokens_total` are expected — record rules or recorded series named `vllm:*` |
 | — | `node_exporter` on each node | `node_*` and filesystem/network metrics |
+| — | vLLM `prompt_tokens_by_source_total` | Required for the cache hit/miss split on the cost cards + the cache-hit tokens panel (present in vLLM 0.7+ engine metrics) |
 | — | `nvidia_gpu_exporter` (1.x, `nvidia-smi`-backed) on port `9835` per node | Exposes `nvidia_smi_temperature_gpu`, `nvidia_smi_power_draw_watts`, `nvidia_smi_clocks_*`, `nvidia_smi_clocks_event_reasons_*`, `nvidia_smi_utilization_*`, … |
 | — | Target label **`dgx_spark="true"`** | All `node_*` and `nvidia_smi_*` panels are scoped with `{dgx_spark="true"}` so the dashboard aggregates **only your DGX nodes**, not the rest of the fleet |
 | — | `host_id` label | Used as the legend (`{{host_id}}`) to tell nodes apart |

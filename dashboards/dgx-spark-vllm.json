@@ -32,7 +32,7 @@
       "id": 101,
       "type": "stat",
       "title": "",
-      "description": "Opus-class cloud equivalent for selected range: $5 input / $25 output per 1M tokens.",
+      "description": "Cloud-equivalent cost at Claude Opus 5 API rates, split by measured cache hits/misses: $5 input (cache miss) / $0.50 input (cache read, 0.1x) / $25 output per 1M tokens. Cache WRITES (first pass, 1.25x/2x) are not separately billable from engine metrics, so with heavy prefix re-use this is a lower bound.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -45,11 +45,16 @@
       },
       "targets": [
         {
-          "expr": "((sum(increase(vllm:prompt_tokens_total[$__range]))) * 5 + (sum(increase(vllm:generation_tokens_total[$__range]))) * 25) / 1000000",
-          "refId": "A",
-          "legendFormat": "Ultra cloud",
+          "expr": "(sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_compute\"}[$__range])) * 5 + sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_cache_hit\"}[$__range])) * 0.5 + sum(increase(vllm:generation_tokens_total[$__range])) * 25) / 1000000",
+          "legendFormat": "Claude Opus 5",
           "editorMode": "code",
-          "range": true
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ],
       "fieldConfig": {
@@ -97,7 +102,7 @@
       "id": 102,
       "type": "stat",
       "title": "",
-      "description": "Sonnet-class cloud equivalent for selected range: $3 input / $15 output per 1M tokens.",
+      "description": "Cloud-equivalent cost at Claude Sonnet 5 API rates, split by measured cache hits/misses: $2 input (cache miss) / $0.20 input (cache read, 0.1x) / $10 output per 1M tokens. Cache WRITES not separately billed (lower bound under heavy prefix re-use).",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -110,11 +115,16 @@
       },
       "targets": [
         {
-          "expr": "((sum(increase(vllm:prompt_tokens_total[$__range]))) * 3 + (sum(increase(vllm:generation_tokens_total[$__range]))) * 15) / 1000000",
-          "refId": "A",
-          "legendFormat": "Mid cloud",
+          "expr": "(sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_compute\"}[$__range])) * 2 + sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_cache_hit\"}[$__range])) * 0.2 + sum(increase(vllm:generation_tokens_total[$__range])) * 10) / 1000000",
+          "legendFormat": "Claude Sonnet 5",
           "editorMode": "code",
-          "range": true
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ],
       "fieldConfig": {
@@ -162,7 +172,7 @@
       "id": 103,
       "type": "stat",
       "title": "",
-      "description": "Haiku-class cloud equivalent for selected range: $1 input / $5 output per 1M tokens.",
+      "description": "Cloud-equivalent cost at DeepSeek-V4-Flash-0731 API rates (off-peak), split by measured cache hits/misses: $0.22 input (cache miss) / $0.007 input (cache hit) / $0.66 output per 1M tokens. Peak hours (01:00-04:00 & 06:00-10:00 UTC) double these. Prices raised 2026-08-16; source: api-docs.deepseek.com/quick_start/pricing.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -175,11 +185,16 @@
       },
       "targets": [
         {
-          "expr": "((sum(increase(vllm:prompt_tokens_total[$__range]))) * 1 + (sum(increase(vllm:generation_tokens_total[$__range]))) * 5) / 1000000",
-          "refId": "A",
-          "legendFormat": "Low cloud",
+          "expr": "(sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_compute\"}[$__range])) * 0.22 + sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_cache_hit\"}[$__range])) * 0.007 + sum(increase(vllm:generation_tokens_total[$__range])) * 0.66) / 1000000",
+          "legendFormat": "DeepSeek V4 Flash",
           "editorMode": "code",
-          "range": true
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ],
       "fieldConfig": {
@@ -483,8 +498,8 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "TOTAL TOKENS / SEC",
-      "description": "Real-time prompt + output token throughput. Higher is good only when queueing, preemption, and latency stay controlled.",
+      "title": "CACHE-HIT TOKENS (RANGE)",
+      "description": "Prompt tokens served from the prefix cache over the selected range (vllm:prompt_tokens_by_source_total{source=\"local_cache_hit\"}). High = heavy prefix reuse; the cost cards price these at the discounted cache-read rate.",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -497,11 +512,15 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(vllm:generation_tokens_total[$__rate_interval])) + sum(rate(vllm:prompt_tokens_total[$__rate_interval]))",
-          "refId": "A",
-          "legendFormat": "tokens/sec",
+          "expr": "sum(increase(vllm:prompt_tokens_by_source_total{source=\"local_cache_hit\"}[$__range]))",
+          "legendFormat": "cache-hit tokens",
           "editorMode": "code",
-          "range": true
+          "refId": "A",
+          "range": true,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ],
       "fieldConfig": {
@@ -520,7 +539,7 @@
               }
             ]
           },
-          "unit": "tps"
+          "unit": "short"
         },
         "overrides": []
       },
